@@ -1,15 +1,18 @@
 let grid;
 let cols;
 let rows;
-const RESOLUTION = 10; // Size of each cell
-let speed = 1; // Amount of frames until next step
-let paused = false;
-let lastToggledCell;
+const RESOLUTION = 30; // Size of each cell
+let speed = 30; // Amount of frames until next step
+let paused = true;
+//let lastToggledCell;
+
+let selectedCells = [];
+let generationsToSim = 10;
 
 function setup() {
   createCanvas(windowWidth - (RESOLUTION * 2), windowHeight - (RESOLUTION * 2));
   cols = floor(width / RESOLUTION - 2);
-  rows = floor(height / RESOLUTION - 1);
+  rows = floor(height / RESOLUTION - 4);
 
   //cols = 10;
   //rows = 10;
@@ -17,7 +20,7 @@ function setup() {
   grid = make2DArray(cols, rows);
   randomizeGrid();
 
-  lastToggledCell = createVector(-1, -1);
+  //lastToggledCell = createVector(-1, -1);
 }
 
 function draw() {
@@ -27,6 +30,7 @@ function draw() {
   if(frameCount % speed == 0 && !paused) {
     grid = updateGrid(grid);
   }
+  drawUI();
 }
 
 function updateGrid(g) {
@@ -64,6 +68,12 @@ function drawGrid(g) {
   }
 }
 
+function drawUI() {
+  textSize(32);
+  fill("black");
+  text("asdfkjlhadsfkljh", 0, height);
+}
+
 // --- INTERACTIVE CONTROLS ---
 
 // 1. Click or Drag to Draw
@@ -71,33 +81,37 @@ function mousePressed() {
   toggleCell(floor((mouseX - RESOLUTION) / RESOLUTION), floor((mouseY - RESOLUTION) / RESOLUTION));
 }
 
-function mouseDragged() {
-  let x = floor((mouseX - RESOLUTION) / RESOLUTION);
-  let y = floor((mouseY - RESOLUTION) / RESOLUTION);
-  if(!(x == lastToggledCell.x && y == lastToggledCell.y)) {
-    toggleCell(x, y);
-  }
-}
+// function mouseDragged() {
+//   let x = floor((mouseX - RESOLUTION) / RESOLUTION);
+//   let y = floor((mouseY - RESOLUTION) / RESOLUTION);
+//   if(!(x == lastToggledCell.x && y == lastToggledCell.y)) {
+//     toggleCell(x, y);
+//   }
+// }
 
 function toggleCell(x, y) {
   grid[x][y] = 1 - grid[x][y];
   lastToggledCell = createVector(x, y);
 }
 
-// 2. Keyboard Controls
-function keyPressed() {
-  if((keyCode == 187 || key == "=") && speed > 1 && !paused) {
-    speed--;
-  } else if((keyCode == 189 || key == "-") && !paused) {
-    speed++;
-  } else if(keyCode == 32) {
-    paused = !paused;
-  } else if(key == "c") {
-    grid = make2DArray(cols, rows);
-  } else if(key == "r") {
-    randomizeGrid();
-  }
+function selectCellAtMouse() {
+
 }
+
+// 2. Keyboard Controls
+// function keyPressed() {
+//   if((keyCode == 187 || key == "=") && speed > 1 && !paused) {
+//     speed--;
+//   } else if((keyCode == 189 || key == "-") && !paused) {
+//     speed++;
+//   } else if(keyCode == 32) {
+//     paused = !paused;
+//   } else if(key == "c") {
+//     grid = make2DArray(cols, rows);
+//   } else if(key == "r") {
+//     randomizeGrid();
+//   }
+// }
 
 // --- HELPER FUNCTIONS ---
 
