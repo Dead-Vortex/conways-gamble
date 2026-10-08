@@ -2,17 +2,27 @@ let grid;
 let cols;
 let rows;
 const RESOLUTION = 30; // Size of each cell
-let speed = 3; // Amount of frames until next step
-let paused = true;
+let speed = 30; // Amount of frames until next step
+let paused = false;
 //let lastToggledCell;
 
+let money = 50;
 let selectedCells = [];
-let generationsToSim = 10;
+let generationsToSim = 0;
+let generationsSimmed = 0;
+let betButton;
+let betAmountSlider;
 
 function setup() {
   createCanvas(windowWidth - (RESOLUTION * 2), windowHeight - (RESOLUTION * 2));
   cols = floor(width / RESOLUTION - 2);
   rows = floor(height / RESOLUTION - 4);
+
+  betButton = createButton("Bet");
+  betButton.position(RESOLUTION + 10, height - (RESOLUTION * 3));
+  betButton.mousePressed(bet);
+  betAmountSlider = createSlider(1, money, 1);
+  betAmountSlider.position(RESOLUTION + 60, height - (RESOLUTION * 3));
 
   grid = make2DArray(cols, rows);
   randomizeGrid();
@@ -25,8 +35,9 @@ function draw() {
 
   drawGrid(grid);
 
-  if(frameCount % speed == 0 && !paused) {
+  if(frameCount % speed == 0 && !paused && generationsSimmed < generationsToSim) {
     grid = updateGrid(grid);
+    generationsSimmed++;
   }
 
   drawUI();
@@ -63,11 +74,15 @@ function drawGrid(g) {
           cellSelected = true;
         }
       }
+      stroke(0, 0, 0);
+      strokeWeight(1);
       if(cellSelected) {
+        stroke(255, 0, 150);
+        strokeWeight(4);
         if(g[i][j] == 0) {
-          fill("#ffff00");
+          fill("#fb369f");
         } else {
-          fill("#808000");
+          fill("#910048ff");
         } 
       } else {
         if(g[i][j] == 0) {
@@ -77,15 +92,24 @@ function drawGrid(g) {
         }
       }
 
-      rect((i + 1) * RESOLUTION, (j + 1) * RESOLUTION, RESOLUTION, RESOLUTION);
+      square((i + 1) * RESOLUTION, (j + 1) * RESOLUTION, RESOLUTION);
     }
   }
 }
 
 function drawUI() {
   textSize(32);
+  strokeWeight(1);
+  stroke(0, 0, 0)
   fill("black");
-  text("asdfkjlhadsfkljh", 0, height);
+  text("$" + money + "            " + betAmountSlider.value() + "\nSelected Cells: " + selectedCells.length, 0, height - 50);
+}
+
+function bet() {
+  let bet = betAmountSlider.value();
+  money -= bet;
+  //generationsSimmed = 0;
+  generationsToSim += 10;
 }
 
 // --- INTERACTIVE CONTROLS ---
@@ -109,18 +133,20 @@ function toggleCell(x, y) {
 }
 
 function selectCell(x, y) {
-  let hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM = false;
-  for(let i = 0; i < selectedCells.length; i++) {
-    if(selectedCells[i].x == x && selectedCells[i].y == y) {
-      selectedCells.splice(i, 1);
-      hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM = true;
-      break;
+  if(x >= 0 && y >= 0 && x < grid.length && y < grid[0].length) {
+    let hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM = false;
+    for(let i = 0; i < selectedCells.length; i++) {
+      if(selectedCells[i].x == x && selectedCells[i].y == y) {
+        selectedCells.splice(i, 1);
+        hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM = true;
+        break;
+      }
     }
+    if(!hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM) {
+      selectedCells.push(createVector(x, y));
+    }
+    lastToggledCell = createVector(x, y);
   }
-  if(!hasTheForLoopFoundACellInTheArrayOfCellsThatHaveAlreadyBeenSelectedThatMatchesTheCellThatTheUserHasJustTriedToSelectTM) {
-    selectedCells.push(createVector(x, y));
-  }
-  lastToggledCell = createVector(x, y);
 }
 
 // 2. Keyboard Controls
